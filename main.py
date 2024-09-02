@@ -1,5 +1,5 @@
 import flet as ft
-import GeometryCalculation
+import geometrycalculation
 
 def main(page: ft.Page):
     page.title = "Heat Exchanger manufacturing cost"
