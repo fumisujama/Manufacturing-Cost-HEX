@@ -162,7 +162,7 @@ def main(page: ft.Page):
 
 
     def button_clicked_test(e):
-        data_entry.value = f"The value of data table is: '{ds.value}', '{ls.value}', '{ts.value}', '{dte.value}', '{lay.value}', '{ltp.value}', '{Nb.value}',  '{BC.value}', '{number_passes.value}', '{Ntp.value}'."
+        data_entry.value = f"The value of data table is: '{ds.value}', '{ls.value}', '{dte.value}', '{lay.value}', '{ltp.value}', '{Nb.value}',  '{BC.value}', '{number_passes.value}', '{Ntp.value}'."
         page.update()
 
     def calculate_geometry():
@@ -191,7 +191,7 @@ def main(page: ft.Page):
 
         diameter_removable_cover, thickness_removable_cover = geometry_calculation.calculate_removable_cover(diameter_flange, thickness_flange)
 
-        number_tie_rods, diameter_tie_rods = geometry_calculation.calculate_tie_rods(ds, table_r471)
+        number_tie_rods, diameter_tie_rods, length_tie_rods = geometry_calculation.calculate_tie_rods(ds, table_r471)
 
     def calculate_volumes():
         volume_shell = volumes.volume_shell(diameter_shell, length_shell, thickness_shell, diameter_nozzles)
@@ -202,13 +202,18 @@ def main(page: ft.Page):
         
         volume_baffles = volumes.volume_baffles(diameter_baffles, number_tubes_pass, number_passes, BC, dte, number_baffles, thickness_baffles)
 
-        volume_heads = volumes.volume_heads(heads_length, thickness_shell, diameter_shell, diameter_nozzles
+        volume_heads = volumes.volume_heads(heads_length, thickness_shell, diameter_shell, diameter_nozzles)
 
-        volume_nozzles = volumes.volume_nozzles(4
+        volume_nozzles = volumes.volume_nozzles(length_nozzles, thickness_nozzles, diameter_nozzles)
 
-        volume_tubesheets = volumes.volume_tubes(t
+        volume_removable_covers= volumes.volume_removable_cover(diameter_flange, thickness_flange, number_bolts, diameter_bolts)
 
-        volume_tubesheets = volumes.volume_tubes(t
+        volume_flange = volumes.volume_flange(diameter_shell, diameter_flange, thickness_flange)
+
+        volume_pass_partitions = volumes.volume_pass_partitions(number_passes, diameter_shell, thickness_pass_partitions, heads_length)
+
+        volume_tie_rods = volumes.volume_tie_rods(number_tie_rods, diameter_tie_rods, length_tie_rods)
+
     #Data Entry 
     ds = ft.TextField(label="Shell inside diameter", width=200)
     ls = ft.TextField(label="Shell length", width=200)
@@ -263,8 +268,12 @@ def main(page: ft.Page):
     material_cost_plasma_cutting = ft.TextField(label="Material cost per hour of plasma cutting")
     utility_cost_plasma_cutting = ft.TextField(label="Utility cost per hour of plasma cutting")
     depreciation_cost_plasma_cutting = ft.TextField(label="Depreciation cost per hour of plasma cutting")
-    starting_time_plasma_cutting = ft.TextField(label="Starting time of plasma cutting")
-
+    starting_time_plasma_cutting = ft.TextField(label="starting time of plasma cutting")    
+    manipulation_time_plasma_cutting = ft.TextField(label="manipulation time per 1000kg of material")
+    spca = ft.TextField(label="spca")
+    tpcs = ft.TextField(label="tpcs")
+    operation_factor_plasma_cutting = ft.TextField(label="Operation factor of plasma cutting")
+    ec = ft.TextField(label="Width of plasma cutting")
 
 
     #Drilling operation parameters
@@ -272,30 +281,57 @@ def main(page: ft.Page):
     material_cost_drilling = ft.TextField(label="Material cost per hour of drilling")
     utility_cost_drilling = ft.TextField(label="Utility cost per hour of drilling")
     depreciation_cost_drilling = ft.TextField(label="Depreciation cost per hour of drilling")
-    
+    starting_time_drilling = ft.TextField(label="Starting time of drilling")    
+    manipulation_time_drilling = ft.TextField(label="manipulation time per 1000kg of material")
+    Stm = ft.TextField(label="Stm")
+    rpm = ft.TextField(label="RPM of drilling tool")
+    fnd = ft.TextField(label="Feed of tool")
+    Stdo = ft.TextField(label="Stdo")
+    Sdh = ft.TextField(label="Sdh")
+
+
     #Lathe operation parameters
     labor_cost_lathe = ft.TextField(label="Labor cost per hour of lathe")
     material_cost_lathe = ft.TextField(label="Material cost per hour of lathe")
     utility_cost_lathe = ft.TextField(label="Utility cost per hour of lathe")
     depreciation_cost_lathe = ft.TextField(label="Depreciation cost per hour of lathe")
+    operation_factor_lathe = ft.TextField(label="Operation factor of lathe")
+    vcl = ft.TextField(label="vcl")
+    apl = ft.TextField(label="apl")
+    fnl = ft.TextField(label="fnl")
+
 
     #Root pass welding operation parameters
     labor_cost_root_pass_welding = ft.TextField(label="Labor cost per hour of root pass welding")
     material_cost_root_pass_welding = ft.TextField(label="Material cost per hour of root pass welding")
     utility_cost_root_pass_welding = ft.TextField(label="Utility cost per hour of root pass welding")
     depreciation_cost_root_pass_welding = ft.TextField(label="Depreciation cost per hour of root pass welding")
+    density_filler_material = ft.TextField(label="Density of filler material for root pass")
+    nrp = ft.TextField(label="nrp")
+    operation_factor_root_pass_welding = ft.TextField(label="Operation factor of root pass welding")
+    rrp = ft.TextField(label="rrp")
+    thickness_root_pass_welding = ft.TextField(label="Thickness of root pass welding")
+
 
     #Welding operation parameters
     labor_cost_welding = ft.TextField(label="Labor cost per hour of welding")
     material_cost_welding = ft.TextField(label="Material cost per hour of welding")
     utility_cost_welding = ft.TextField(label="Utility cost per hour of welding")
     depreciation_cost_welding = ft.TextField(label="Depreciation cost per hour of welding")
+    density_filler_material = ft.TextField(label="Density of filler material for welding")
+    nrp = ft.TextField(label="nrp")
+    operation_factor_welding = ft.TextField(label="Operation factor of welding")
+    rrp = ft.TextField(label="rrp")
+    thickness_root_pass_welding = ft.TextField(label="Thickness of welding")
     
+
     #Blade Saw Cutting operation parameters
     labor_cost_blade_saw_cutting = ft.TextField(label="Labor cost per hour of blade saw cutting")
     material_cost_blade_saw_cutting = ft.TextField(label="Material cost per hour of blade saw cutting")
     utility_cost_blade_saw_cutting = ft.TextField(label="Utility cost per hour of blade saw cutting")
     depreciation_cost_blade_saw_cutting = ft.TextField(label="Depreciation cost per hour of blade saw cutting")
+    Crbs = ft.TextField(label="Crbs")
+    operation_factor_blade_saw_cutting = ft.TextField(label="Operation factor of blade saw cutting")
 
 
 

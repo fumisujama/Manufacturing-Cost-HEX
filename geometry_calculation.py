@@ -145,13 +145,13 @@ def calculate_removable_covers(diameter_flange, thickness_flange):
     thickness_removable_cover = thickness_flange
     return diameter_removable_cover, thickness_removable_cover
 
-def calculate_tie_rods(diameter_shell, table_r471):
+def calculate_tie_rods(diameter_shell, table_r471, length_shell):
     for items in table_r471:
         if diameter_shell<=items["Diameter shell"]:
             number_tie_rods = items["Number of tie rods"]
             diameter_tie_rods = items["Tie rod diameter"]
-            
-            return number_tie_rods, diameter_tie_rods
+            length_tie_rods = length_shell
+            return number_tie_rods, diameter_tie_rods, length_tie_rods
         
         else:
             continue
