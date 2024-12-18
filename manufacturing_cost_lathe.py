@@ -3,53 +3,50 @@
 #          PROCESS OF LATHE             #
 #                                       #
 #########################################
-import numpy as np
-from RetrievingData import DesignDimensions_HE as DesHE
-from RetrievingData import Dimensions_HE as DimHE
-from RetrievingData import Volumes_HE as VolHE
 
-#parameters of the operation:
-kl=0.5
-vcl=3.14*10*300
-apl=10
-fnl=1
-########################
+import math
 
-
-#DIMENSIONS FOR EVERY PART
-#             Removed Volume        Volume
-tubesheet=((((DesHE[4]+6*apl)/2)**2)*np.pi*(DesHE[7]+2*apl))-(((DesHE[4]/2)**2)*np.pi*DesHE[7]), VolHE[2]
-flanges=((((DesHE[4]+6*apl)/2)**2)-(((DimHE[0]+6*apl)/2)**2))*np.pi*(DesHE[3]+2*apl)*((DesHE[4]/2)**2-((DimHE[0]/2)**2))*np.pi*DesHE[3], VolHE[7]
-removable_cover=((((DesHE[23]+6*apl)/2)**2)*np.pi*(DesHE[24]+2*apl))-(((DesHE[23]/2)**2)*np.pi*DesHE[24]),VolHE[6]
-
-
-Dim_lathe=[tubesheet,flanges,removable_cover]
+def calculate_cost_lathe(labor_cost_lathe, material_cost_lathe, utility_cost_lathe, depreciation_cost_lathe, starting_time_lathe, manipulation_time_lathe,operation_factor_lathe, vcl, apl, fnl, diameter_flange, diameter_shell, thickness_flange, thickness_removable_covers, thickness_tubesheets, volume_tubesheets, volume_flange, volume_removable_covers):
+    
+    #Table 5 for calculating Vlw
+    table_5 = [ 
+            {"Removed volume": (((math.pi * (diameter_flange + apl)**2 /4) * (thickness_tubesheets + apl)) - (math.pi * diameter_flange**2 / 4) * tubesheets thickness))}, "Manipulated volume": volume_tubesheets},
+            {"Removed volume": ((math.pi * (diameter_flange + apl)**2) / 4)
+             * (thickness_flange + apl)
+             - (math.pi / 4) * thickness_flange
+             + ((math.pi / 4) * diameter_shell**2 * thickness_flange)
+             - ((math.pi / 4) * (diameter_shell-apl)**2 * thickness_flange),  "Manipulated volume": volume_flange},
+            {"Removed volume": ((((diameter_removable_covers + apl) / 2)**2
+             * math.pi * (thickness_removable_covers + apl))
+             - ((diameter_removable_covers / 2)**2) * math.pi * thickness_removable_covers), "Manipulated volume": volume_removable_covers}
+           ]
 
 
 
-LCph=30
-MCph=30
-UCph=30
-DCph=30
-STt=10
-STh=1
+    for components in table_5:
+        labor_cost = labor_cost_lathe * (
+            (components["Removed volume"] / (kl * vcl * apl * fnl)
+             ) 
+            + starting_time_lathe
+            + manipulation_time_lathe*components["Manipulated volume"]
+            )
+        material_cost = material_cost_lathe * (
+            (components["Removed volume"] / (kl * vcl * apl * fnl)
+             )
+            )
+        utility_cost = utility_cost_lathe * (
+            (components["Removed volume"] / (kl * vcl * apl * fnl)
+             )
+            + manipulation_time_lathe*components["Manipulated volume"]
+            )
+        depreciation_cost = depreciation_cost_lathe * (
+            (components["Removed volume"] / (kl * vcl * apl * fnl)
+             )
+            + manipulation_time_lathe*components["Manipulated volume"]
+            )
 
-                                                                                      
-def CostLathe():
-    Cost_of_Lathe=0
-    i=0
-    while i<len(Dim_lathe):
+    return labor_cost+material_cost+utility_cost+depreciation_cost
 
-        Labor_cost_lathe=LCph*((Dim_lathe[i][0]/(kl*vcl*apl*fnl))+STt+STh*Dim_lathe[i][1])
 
-        Material_cost_lathe=MCph*(Dim_lathe[i][0]/(kl*vcl*apl*fnl))
 
-        Utility_cost_lathe=UCph*(Dim_lathe[i][0]/(kl*vcl*apl*fnl))
 
-        Mach_Depreciation_cost_lathe=DCph*((Dim_lathe[i][0]/(kl*vcl*apl*fnl))+STt+STh*Dim_lathe[i][1])
-   
-        Cost_of_Lathe=Cost_of_Lathe+Labor_cost_lathe+Material_cost_lathe+Utility_cost_lathe+Mach_Depreciation_cost_lathe
-
-        i+=1
-    return Cost_of_Lathe
-print(CostLathe())

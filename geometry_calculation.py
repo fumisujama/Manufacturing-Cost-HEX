@@ -3,9 +3,9 @@
 import math
 
 
-def calculate_shell_thickness(design_pressure, data_entry_table, max_allowable_stress, welding_efficiency):
+def calculate_shell_thickness(design_pressure, data_entry_table, max_allowable_stress, welding_efficiency): #poner unidades de cada varialbe
     shell_thickness=math.ceil((design_pressure * data_entry_table) / (max_allowable_stress*welding_efficiency - 0.6*design_pressure))
-    return shell_thickness
+    return shell_thickness #agregar unidad de la variable que devuelve
 
 
 def calculate_flange_and_bolts(table_d5, Ds, ts, design_pressure, gasket_material_factor, max_allowable_stress, max_allowable_bolt_stress, welding_efficiency):
@@ -94,24 +94,30 @@ def calculate_baffles_thickness(table_cb441, Ds, length_shell, number_baffles):
 
 
 
-def calculate_nozzles_inside_diameter(shell_side_fluid_density, tube_side_fluid_density, shell_side_flow_velocity, tube_side_flow_velocity, shell_side_mass_flow_rate, tube_side_mass_flow_rate, schedule40_table):
-    nozzles_inside_diameter = max(2*math.sqrt(shell_side_mass_flow_rate / 
+def calculate_nozzles_inside_diameters(shell_side_fluid_density, tube_side_fluid_density, shell_side_flow_velocity, tube_side_flow_velocity, shell_side_mass_flow_rate, tube_side_mass_flow_rate, schedule40_table):
+    shell_nozzles_inside_diameter = 2*math.sqrt(shell_side_mass_flow_rate / 
                                               (math.pi * shell_side_flow_velocity * shell_side_fluid_density)
-                                              ),
-                                  2*math.sqrt(tube_side_mass_flow_rate / 
+                                              )
+    tubes_nozzles_inside_diameter = 2*math.sqrt(tube_side_mass_flow_rate / 
                                               (math.pi * tube_side_flow_velocity * tubeside_fluid_density)
                                               )
-                                  )
+                                  
 
     #Aproximate to the nearest inside diameter of schedule40
     for i,tubes in enumerate(schedule40_table):
-        if nozzles_inside_diameter<=(tubes["Outside diameter"]-2*tubes["Wall thickness"]):
-            nozzles_inside_diameter = schedule40_table[i]["Outside diameter"] - 2*schedule40_table[i]["Wall thickness"]
+        if shell_nozzles_inside_diameter<=(tubes["Outside diameter"]-2*tubes["Wall thickness"]):
+            shell_nozzles_inside_diameter = schedule40_table[i]["Outside diameter"] - 2*schedule40_table[i]["Wall thickness"]
+        else:
+            continue
+
+    for i,tubes in enumerate(schedule40_table):
+        if tubes_nozzles_inside_diameter<=(tubes["Outside diameter"]-2*tubes["Wall thickness"]):
+            tubes_nozzles_inside_diameter = schedule40_table[i]["Outside diameter"] - 2*schedule40_table[i]["Wall thickness"]
         
         else:
             continue
 
-    return nozzles_inside_diameter
+    return shell_nozzles_inside_diameter, tubes_nozzles_inside_diameter
 
 
 def calculate_nozzles_length_thickness(diameter_flange, outside_diameter_shell, schedule40_table):

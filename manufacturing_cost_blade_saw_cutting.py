@@ -3,41 +3,43 @@
 #     PROCESS OF BLADE SAW CUTING       #
 #                                       #
 #########################################
+import math
 
-import numpy as np
+def calculate_cost_blade_saw_cutting(labor_cost_blade_saw_cutting, material_cost_blade_saw_cutting, utility_cost_blade_saw_cutting, depreciation_cost_blade_saw_cutting, starting_time_blade_saw_cutting, manipulation_time_blade_saw_cutting, operation_factor_blade_saw_cutting, diameter_nozzles, thickness_nozzles, outside_diameter_tubes, thickness_tubes, Crbs, number_tubes_per_pass, number_passes,volume_tubes):
+    
+    #Table 8 for cutarea_bs
+    table_8 = [ 
+               {"Cut area": math.pi/2 * (diameter_nozzles**2 - (diameter_nozzles - 2*thickness_nozzles)**2) ,"Manipulated volume": volume_nozzles/2},
+            {"Cut area": math.pi/2 * (diameter_nozzles**2 - (diameter_nozzles - 2*thickness_nozzles)**2) ,"Manipulated volume": volume_nozzles/2},
+            {"Cut area": number_tubes_per_pass * number_passes * (math.pi/4) * (outside_diameter_tubes**2 - (outside_diameter_tubes - 2*thickness_tubes)**2)  "Manipulated volume": volume_tubes}
+            ]
 
-from RetrievingData import DesignDimensions_HE as DesHE
-from RetrievingData import Dimensions_HE as DimHE
-from RetrievingData import Volumes_HE as VolHE
-import RawMaterialNozzles as RMnz
-import RawMaterialTubes as RMt
-import Stocks
 
-#DIMENSIONS FOR EVERY PART
-shell_nozzles=2*np.pi*((DesHE[12]**2-RMnz.RawMaterialNozzles()[1]**2)/4), VolHE[5]/2, 1 #put Lpipe here
-head_nozzles=2*np.pi*((DesHE[12]**2-RMnz.RawMaterialNozzles()[1]**2)/4), VolHE[5]/2,1
-tubes=DimHE[7]*DimHE[8]*np.pi*((DimHE[3]**2-(DimHE[3]-2*DesHE[8])**2)/4), VolHE[1],1
-Dim_BladeSaw=[shell_nozzles,head_nozzles,tubes]
 
-LCph=30
-MCph=30
-UCph=30
-DCph=30
+    for cutareas in table_8:
+        labor_cost = labor_cost_blade_saw_cutting * (
+            (cutareas["Cut area"] / (operation_factor_blade_saw_cutting * Crbs) 
+             ) 
+            + starting_time_blade_saw_cutting
+            + manipulation_time_blade_saw_cutting*cutareas["Manipulated volume"]
+            )
+        material_cost = material_cost_blade_saw_cutting * (
+            (cutareas["Cut area"] / (operation_factor_blade_saw_cutting * Crbs)
+             )
+            )
+        utility_cost = utility_cost_blade_saw_cutting * (
+            (cutareas["Cut area"] / (operation_factor_blade_saw_cutting * Crbs)
+             )
+            + manipulation_time_blade_saw_cutting*cutareas["Manipulated volume"]
+            )
+        depreciation_cost = depreciation_cost_blade_saw_cutting * (
+            (cutareas["Cut area"] / (operation_factor_blade_saw_cutting * Crbs) 
+             )
+            + manipulation_time_blade_saw_cutting*cutareas["Manipulated volume"]
+            )
 
-STh=1
-STco=0.8
+    return labor_cost+material_cost+utility_cost+depreciation_cost
 
-Ro=7,85*(10**(-6))
-IC=100
 
-def CostBladeSawCutting():
-    Cost_BladeSawCuting=0
-    i=0
-    while i<len(Dim_BladeSaw):
-        Labor_cost_BladeSaw=LCph*((STco*Ro*Dim_BladeSaw[i][2]+IC)*Dim_BladeSaw[i][0])+STh*Dim_BladeSaw[i][1]
-        Material_cost_BladeSaw=MCph*((STco*Ro*Dim_BladeSaw[i][2]+IC)*Dim_BladeSaw[i][0])
-        Utility_cost_BladeSaw=UCph*((STco*Ro*Dim_BladeSaw[i][2]+IC)*Dim_BladeSaw[i][0])
-        Mach_Depreciation_cost_BladeSaw=DCph*((STco*Ro*Dim_BladeSaw[i][2]+IC)*Dim_BladeSaw[i][0])+STh*Dim_BladeSaw[i][1]
-        Cost_BladeSawCuting=Cost_BladeSawCuting+Labor_cost_BladeSaw+Material_cost_BladeSaw+Utility_cost_BladeSaw+Mach_Depreciation_cost_BladeSaw
-        i+=1
-        return Cost_BladeSawCuting
+
+

@@ -1,61 +1,70 @@
-###################################################
-#
-#          PROCESS OF  WELDING
-#
-###################################################
+'''
+##################################
+#                                #
+#       PROCESS OF  WELDING      #
+#                                #
+##################################
+'''
 
-import numpy as np
-from RetrievingData import DesignDimensions_HE as DesHE
-from RetrievingData import Dimensions_HE as DimHE
-from RetrievingData import Volumes_HE as VolHE
-import RawMaterialShell as RMs
+import math
 
-#parameters of operations:
-Ro=7,85*(10**(-6))
-n=0.8
-k=0.5
-r=10
-tw=1.6 #[mm]
+def calculate_cost_welding(labor_cost_welding, material_cost_welding, utility_cost_welding, depreciation_cost_welding, starting_time_welding, manipulation_time_welding, density_root_pass_welding_material, average_deposition_rate , operation_factor_welding, deposition_efficiency,  thickness_shell, thickness_flange, thickness_baffles, thickness_pass_partitions, thickness_removable_covers, thickness_heads, thickness_tubesheets, number_plates_shell, diameter_flange, diameter_shell, width_pass_partitions, length_pass_partitions,thickness_pass_partitions, number_passes, number_tubes_pass, diameter_removable_covers, diameter_shell, diameter_heads, diameter_tubesheets, length_heads, number_baffles, number_trunks_shell, volume_tubesheets, volume_flange, volume_baffles, volume_pass_partitions, volume_removable_covers, volume_shell, volume_heads):
+   #Look how to implement the amount of plates in this function, later we change it to be compatible with raw materials 
 
-#DIMENSIONS FOR EVERY PART
-#           Volume of welding                           Vwroot                    Vh
-shell_to_nozzles=2*DesHE[12]*np.pi*(tw**2),     VolHE[5]/2
-flange_to_shell_nozzle=2*DesHE[12]*np.pi*(tw**2), VolHE[5]/2 #Dont use the vol of nozzles's flanges, ask agosta later
-tubesheet_to_shell=2*DimHE[0]*np.pi*(tw**2),VolHE[2]+VolHE[0] 
-nozzles_flange_to_head_nozzle=DesHE[12]*np.pi*(tw**2), VolHE[5]/2 #the same as above
-head_to_nozzle=DesHE[12]*np.pi*(tw**2),VolHE[5]/2
-flange_to_heads=4*DimHE[0]*np.pi*(tw**2), VolHE[7]
-tube_to_tubesheets=DimHE[7]*DimHE[8]*2*DimHE[3]*np.pi*(tw**2),VolHE[1]
-tierods_tubesheets=DesHE[21]*DesHE[20]*2*np.pi*(tw**2),VolHE[9]
+    #Table 7 for calculating Vrp 
+    table_7 = [ 
+               {"Volume of welding": 2 * diamenter_nozzles * math.pi * (thickness_nozzles - thickness_welding)**2, "Manipulated volume": volume_nozzles/2 + volume_shell},
+               {"Volume of welding": 2 * diamenter_nozzles * math.pi * (thickness_nozzles - thickness_welding)**2, "Manipulated volume": volume_nozzles/2 + volume_nozzles_flanges/2}, #here, nozzles flanges are standard parts
+               {"Volume of welding": 2 * diameter_shell * math.pi * (thickness_shell - thickness_welding)**2, "Manipulated volume": volume_tubesshets + volume_shell},
+               {"Volume of welding": 2 * diamenter_nozzles * math.pi * (thickness_nozzles - thickness_welding)**2, "Manipulated volume": volume_nozzles/2 + volume_nozzles_flanges/2}, #here is also the volume of the standard part
+            {"Volume of welding": 2 * diameter_nozzles * math.pi * (thickness_nozzles - thickness_welding)**2 , "Manipulated volume": volume_nozzles/2 + volume_heads},
+            {"Volume of welding": 4 * diameter_shell * math.pi * (thickness_flange - thickness_welding)**2, "Manipulated volume": volume_flange + volume_heads},
+            {"Volume of welding": number_tubes_per_pass * number_passes * 2 * tube_outside_diameter * math.pi * (thickness_tubes - thickenss_welding)**2, "Manipulated volume": volume_tubes + volume_tubesheets},
+               {"Volume of welding": number_tie_rods * diameter_tie_rods * 2 * math.pi * (thickness_tubesheets - thickness_welding)**2, "Manipulated volume": volume_tie_rods + volume_tubesheets},
+               {"Volume of welding": number_baffles * number_tie_rods * diameter_tie_rods * 2 * math.pi * (thickness_baffles - thickness_welding)**2, "Manipulated volume": volume_tie_rods + volume_baffles},
+               {"Volume of welding": 4 * (number_passes -1) * length_pass_partitions * 2 * (thickness_pass_partitions - thickness_welding)**2, "Manipulated volume": volume_pass_paritions}
+            ]
 
 
+    if diameter_shell>635: 
+        a = [
+            {"Volume of welding":  (number_plates_shell-1) * diameter_shell * math.pi * (thickness_shell - thickness_welding)**2, "Manipulated volume": volume_shell},
+            {"Volume of welding": (number_trunks_shell-1) * length_shell * (thickness_shell - thickness_welding)**2, "Manipulated volume": volume_shell},
+            {"Volume of welding": 2 * length_heads * (thickness_heads - thickness_welding)**2, "Manipulated volume": volume_heads}
+             ]
+        table_7.append(a)
 
-Dim_Weld=[shell_to_nozzles,flange_to_shell_nozzle,tubesheet_to_shell,nozzles_flange_to_head_nozzle,head_to_nozzle,flange_to_heads,tube_to_tubesheets]
-
-if DimHE[0]>609.6:
-    shell_circumferencial=(RMs.RawMaterialShell()[1]-1)*DimHE[0]*np.pi*(tw**2), VolHE[0]
-    shell_longitudinal=DimHE[1]*(tw**2), VolHE[0]
-    head_length=2*DesHE[15]*(tw**2), VolHE[4]
-    Dim_Weld.append(shell_circumferencial)
-    Dim_Weld.append(shell_longitudinal)
-    Dim_Weld.append(head_length)
-
-LCph=1
-MCph=1
-UCph=1
-DCph=1
+    if length_tubes>508:   #lenght of tubes is bigger the 20'
+        b = [
+                {"Volume of welding": number_passes * number_tubes_pass * math.pi * (tubes_outside_diameter - 2 * thickness_tubes) * (thickness_tubes - thickness_welding)**2, "Manipulated volume": volume_tubes}
+                ]
+        table_7.append(b)
 
 
-STh=10
 
-def CostWelding():
-    Cost_of_Weld=0
-    i=0
-    while i<len(Dim_Weld):
-        Labor_cost_Weld=LCph*(Ro/(n*k*r))*Dim_Weld[i][0]+STh*Dim_Weld[i][1]
-        Material_cost_Weld=MCph*(Ro/(n*k*r))*Dim_Weld[i][0]
-        Utility_cost_Weld=UCph*(Ro/(n*k*r))*Dim_Weld[i][0]
-        Mach_Depreciation_cost_Weld=DCph*(Ro/(n*k*r))*Dim_Weld[i][0]+STh*Dim_Weld[i][1]
-        Cost_of_Weld=Cost_of_Weld+Labor_cost_Weld+Material_cost_Weld+Utility_cost_Weld+Mach_Depreciation_cost_Weld
-        i+=1
-    return Cost_of_Weld
+    for components in table_7:
+        labor_cost = labor_cost_welding * (
+                (components["Volume of welding"] * density_welding_material
+                  / (deposition_efficiency * operation_factor_welding * average_deposition_rate))
+            + starting_time_welding
+            + manipulation_time_welding*components["Manipulated volume"]
+            )
+        material_cost = material_cost_welding * (
+            (components["Volume of welding"]* density_welding_material
+                  / (deposition_efficiency * operation_factor_welding * average_deposition_rate)) 
+            ))
+        utility_cost = utility_cost_welding * (
+            (components["Volume of welding"]* density_welding_material
+                  / (deposition_efficiency * operation_factor_welding * average_deposition_rate)) 
+            + manipulation_time_welding*components["Manipulated volume"]
+            )
+        depreciation_cost = depreciation_cost_welding * (
+            (components["Volume of welding"]* density_welding_material
+                  / (deposition_efficiency * operation_factor_welding * average_deposition_rate)) 
+            + manipulation_time_welding*components["Manipulated volume"]
+            )
+    total_manufacturing_cost_welding = labor_cost+material_cost+utility_cost+depreciation_cost
+    return total_manufacturing_cost_welding
+
+
+

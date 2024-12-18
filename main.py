@@ -2,6 +2,16 @@ import flet as ft
 import geometry_calculation
 import volumes
 
+#correr 150 ejemplos con la nueva version (test de consistencia) y a la nueva version se testea varias veces la novedad.
+#al arreglar un bug. hay que identificar los ejemplos en los que el error ocurre. corriendo el nuevo 
+#una vez superado el excel, tenerlo como repositorio de ejemplos.
+#29/10/2024
+
+#En el nuevo software, agregar unit testings para cada formula.
+#En un excel, poner en cada columna el costos parciales, y su desglose
+
+#Terminar el paper con un analisis de sensibilidad de cada parametro
+#analizar la cantidad de parametros necesarios para obtener una desviacion del 5%
 
 """Tables used for calculating, should be moved later in next iterations
 ask how to integrate them on the code, for now, we put it here 20/10/2024
@@ -9,27 +19,27 @@ ask how to integrate them on the code, for now, we put it here 20/10/2024
 #Table D-5
 
 table_d5 = [        # db        B        Rr        E 
-{"db": 12.7,    "B": 31.75,     "Rr": 15.875,"E": 15.875},#ok
-{"db": 15.875,  "B": 38.1,      "Rr": 19.05,"E":   19.05},   #ok
-{"db": 19.05,   "B": 44.45,     "Rr": 20.6375,"E": 20.6375}, #ok
-{"db": 22.225,  "B": 52.3875,   "Rr": 23.8125,"E": 23.8125}, #ok
-{"db": 25.4,    "B": 57.15 ,    "Rr": 26.9875,"E": 26.9875}, #ok,
-{"db": 28.575,  "B": 63.5,      "Rr": 28.575,"E":  28.575}, #o,k
-{"db": 31.75,   "B": 71.4375,   "Rr": 31.75,"E":   31.75},  #ok
-{"db": 34.925,  "B": 77.7875,   "Rr": 34.925,"E":  34.925}, #ok
-{"db": 38.1,    "B": 82.55,     "Rr": 38.1,"E":    38.1},  #}ok
-{"db": 41.275,  "B": 88.9,      "Rr": 41.275,"E":  41.275}, #ok
-{"db": 44.45,   "B": 95.25,     "Rr": 44.45,"E":   44.450}, #ok
-{"db": 47.625,  "B": 101.6,     "Rr": 47.625,"E":  47.625}, #ok
-{"db": 50.8,    "B": 107.95,    "Rr": 50.8,"E":    50.8}, #}ok
-{"db": 57.15,   "B": 120.65,    "Rr": 57.15,"E":   57.150}, #ok
-{"db": 63.5,    "B": 133.35,    "Rr": 63.5,"E":    60.325},#ok
-{"db": 69.85,   "B": 146.05,    "Rr": 69.85,"E":   66.675}, #ok
-{"db": 76.2,    "B": 158.75,    "Rr": 76.2,"E":    73.025}, #ok
-{"db": 82.55,   "B": 168.275,   "Rr": 82.55,"E":   76.2},  #}ok
-{"db": 88.9,    "B": 180.975,   "Rr": 88.9,"E":    82.55}, #ok
-{"db": 95.25,   "B": 193.675,   "Rr": 95.25,"E":   88.9}, #}ok
-{"db": 101.6,   "B": 206.375,   "Rr": 101.6,"E":   92.075}  #ok
+{"db": 12.7,    "B": 31.75,     "Rr": 15.875,   "E":  15.875},#ok
+{"db": 15.875,  "B": 38.1,      "Rr": 19.05,    "E":  19.05},   #ok
+{"db": 19.05,   "B": 44.45,     "Rr": 20.6375,  "E":  20.6375}, #ok
+{"db": 22.225,  "B": 52.3875,   "Rr": 23.8125,  "E":  23.8125}, #ok
+{"db": 25.4,    "B": 57.15 ,    "Rr": 26.9875,  "E":  26.9875}, #ok,
+{"db": 28.575,  "B": 63.5,      "Rr": 28.575,   "E":  28.575}, #o,k
+{"db": 31.75,   "B": 71.4375,   "Rr": 31.75,    "E":  31.75},  #ok
+{"db": 34.925,  "B": 77.7875,   "Rr": 34.925,   "E":  34.925}, #ok
+{"db": 38.1,    "B": 82.55,     "Rr": 38.1,     "E":  38.1},  #}ok
+{"db": 41.275,  "B": 88.9,      "Rr": 41.275,   "E":  41.275}, #ok
+{"db": 44.45,   "B": 95.25,     "Rr": 44.45,    "E":  44.450}, #ok
+{"db": 47.625,  "B": 101.6,     "Rr": 47.625,   "E":  47.625}, #ok
+{"db": 50.8,    "B": 107.95,    "Rr": 50.8,     "E":  50.8}, #}ok
+{"db": 57.15,   "B": 120.65,    "Rr": 57.15,    "E":  57.150}, #ok
+{"db": 63.5,    "B": 133.35,    "Rr": 63.5,     "E":  60.325},#ok
+{"db": 69.85,   "B": 146.05,    "Rr": 69.85,    "E":  66.675}, #ok
+{"db": 76.2,    "B": 158.75,    "Rr": 76.2,     "E":  73.025}, #ok
+{"db": 82.55,   "B": 168.275,   "Rr": 82.55,    "E":  76.2},  #}ok
+{"db": 88.9,    "B": 180.975,   "Rr": 88.9,     "E":  82.55}, #ok
+{"db": 95.25,   "B": 193.675,   "Rr": 95.25,    "E":  88.9}, #}ok
+{"db": 101.6,   "B": 206.375,   "Rr": 101.6,    "E":  92.075}  #ok
  ]
 
 #Table CB 4.41
@@ -214,8 +224,11 @@ def main(page: ft.Page):
 
         volume_tie_rods = volumes.volume_tie_rods(number_tie_rods, diameter_tie_rods, length_tie_rods)
 
-    #Data Entry 
-    ds = ft.TextField(label="Shell inside diameter", width=200)
+
+
+    #Data Entry
+
+    ds = ft.TextField(label="Shell inside diameter", width=200) #agregar unidades de todo
     ls = ft.TextField(label="Shell length", width=200)
     dte = ft.TextField(label="Outside diameter of tubes", width=200)
     lay = ft.TextField(label="Pitch type", width=200)
@@ -245,7 +258,7 @@ def main(page: ft.Page):
     design_pressure = max(shell_side_pressure.value, tube_side_pressure.value)
 
     #Assembly Settings
-    labor_cost_Assembly = ft.TextField(label="Labor cost per hour of assembly")
+    labor_cost_assembly = ft.TextField(label="Labor cost per hour of assembly")
     manipulation_time_assembly = ft.TextField(label="Manipulation Time per 1000kg of material")
     
     labor_cost_bolted_joints = ft.TextField(label="Labor cost per hour of bolted joints")
@@ -389,7 +402,7 @@ def main(page: ft.Page):
                         ft.Row(controls=[
                             ft.Text("Assembly Settings"),
                             
-                            labor_cost_Assembly,
+                            labor_cost_assembly,
                             manipulation_time_assembly, 
     
                             labor_cost_bolted_joints,

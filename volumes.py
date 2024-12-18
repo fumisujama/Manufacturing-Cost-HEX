@@ -12,11 +12,18 @@ def volume_tubesheets(tss,Dfl,Ntp,Np,dte,Nb,db):
     Vts=2*((math.pi/4)*tss*(Dfl**2-Ntp*Np*(dte**2)-Nb*(db**2)))
     return Vts
 
-def volume_baffles(Db,Ntp,Np,Bc,dte,Nb,tb):
-    Ab=(math.pi*Db**2)/4
-    Nbh=Ntp*Np
-    Abh=(Nbh*math.pi*(dte**2))/4
-    Vb=Nb*tb*((Ab-Abh)*(1-(Bc/100)))
+def volume_baffles(Db,Ntp,Np,Bc,dte,Nb,tb, Dtr, Ntr):
+    Vb = Nb * tb * (
+            (math.pi/4) * Db**2
+            - (
+                (Db**2)/4 * math.acos(1 - Bc/50)
+                -(Db/2 - Db*Bc/100) * math.sqrt(
+                    (Db**2)*Bc*(1/100 - Bc/5000)
+                    )
+                )
+            -Ntp * Np * ((math.pi/4)*dte**2) * (1-Bc/100)
+            -Ntr * ((math.pi/4)*Dtr**2)
+            )
     return Vb
 
 def volume_heads(Lh,ts,Ds,Dnzh):

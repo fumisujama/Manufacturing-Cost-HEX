@@ -3,59 +3,65 @@
 #          PROCESS OF ROOT PASS WELDING           #
 #                                                 #
 ###################################################
+import math
 
-import numpy as np
-from RetrievingData import DesignDimensions_HE as DesHE
-from RetrievingData import Dimensions_HE as DimHE
-from RetrievingData import Volumes_HE as VolHE
-import RawMaterialShell as RMs
+def calculate_cost_root_welding(labor_cost_root_welding, material_cost_root_welding, utility_cost_root_welding, depreciation_cost_root_welding, starting_time_root_welding, manipulation_time_root_welding, density_root_pass_welding_material, average_deposition_rate , operation_factor_root_welding, deposition_efficiency,  thickness_shell, thickness_flange, thickness_baffles, thickness_pass_partitions, thickness_removable_covers, thickness_heads, thickness_tubesheets, number_plates_shell, diameter_flange, diameter_shell, width_pass_partitions, length_pass_partitions,thickness_pass_partitions, number_passes, number_tubes_pass, thickness_tubes, diameter_removable_covers, diameter_shell, diameter_heads, diameter_tubesheets, length_heads, number_baffles,  volume_tubesheets, volume_flange, volume_baffles, volume_pass_partitions, volume_removable_covers, volume_shell, volume_heads):
+   #Look how to implement the amount of plates in this function, later we change it to be compatible with raw materials 
 
-#parameters of operations:
-Ro=7,85*(10**(-6))
-n=0.8
-k=0.5
-r=10
-tw=1.6 #[mm]
-
-#DIMENSIONS FOR EVERY PART
-#           Volume of root welding                           Vwroot                    Vh
-shell_to_nozzles=2*DesHE[12]*np.pi*(max(DesHE[14]-tw,0)**2),     VolHE[5]/2
-flange_to_shell_nozzle=2*DesHE[12]*np.pi*(max(DesHE[14]-tw,0)**2), VolHE[5]/2 #Dont use the vol of nozzles's flanges, ask agosta later
-tubesheet_to_shell=2*DimHE[0]*np.pi*(max(DimHE[2]-tw,0)**2),VolHE[2]+VolHE[0] 
-nozzles_flange_to_head_nozzle=DesHE[12]*np.pi*(max(DesHE[14]-tw,0)**2), VolHE[5]/2 #the same as above
-head_to_nozzle=DesHE[12]*np.pi*(max(DesHE[14]-tw,0)**2),VolHE[5]/2
-flange_to_heads=4*DimHE[0]*np.pi*(max(DesHE[3]-tw,0)**2), VolHE[7]
-tube_to_tubesheets=DimHE[7]*DimHE[8]*2*DimHE[3]*np.pi*(max(DesHE[8]-tw,0)**2),VolHE[1]
-tierods_tubesheets=DesHE[21]*DesHE[20]*2*np.pi*(max(DesHE[7]-tw,0)**2),VolHE[9]
+    #Table 6 for calculating Vrp 
+    table_6 = [ 
+               {"Volume of root welding": 2 * diamenter_nozzles * math.pi * thickness_root_welding**2, "Manipulated volume": volume_nozzles/2 + volume_shell},
+               {"Volume of root welding": 2 * diamenter_nozzles * math.pi * thickness_root_welding**2, "Manipulated volume": volume_nozzles/2 + volume_nozzles_flanges/2}, #here, nozzles flanges are standard parts
+               {"Volume of root welding": 2 * diameter_shell * math.pi * thickness_root_welding**2, "Manipulated volume": volume_tubesshets + volume_shell},
+               {"Volume of root welding": 2 * diamenter_nozzles * math.pi * thickness_root_welding**2, "Manipulated volume": volume_nozzles/2 + volume_nozzles_flanges/2}, #here is also the volume of the standard part
+            {"Volume of root welding": 2 * diameter_nozzles * math.pi * thickness_root_welding**2 , "Manipulated volume": volume_nozzles/2 + volume_heads},
+            {"Volume of root welding": 4 * diameter_shell * math.pi * thickness_root_welding**2, "Manipulated volume": volume_flange + volume_heads},
+            {"Volume of root welding": number_tubes_per_pass * number_passes * 2 * tube_outside_diameter * math.pi * thickenss_root_welding**2, "Manipulated volume": volume_tubes + volume_tubesheets},
+               {"Volume of root welding": number_tie_rods * diameter_tie_rods * 2 * math.pi * thickness_root_welding**2, "Manipulated volume": volume_tie_rods + volume_tubesheets},
+               {"Volume of root welding": number_baffles * number_tie_rods * diameter_tie_rods * 2 * math.pi * thickness_root_welding**2, "Manipulated volume": volume_tie_rods + volume_baffles},
+               {"Volume of root welding": 4 * (number_passes -1) * length_pass_partitions * 2 * thickness_root_welding**2, "Manipulated volume": volume_pass_paritions}
+            ]
 
 
 
-Dim_RootWeld=[shell_to_nozzles,flange_to_shell_nozzle,tubesheet_to_shell,nozzles_flange_to_head_nozzle,head_to_nozzle,flange_to_heads,tube_to_tubesheets]
+    if diameter_shell>635: 
+        a = [
+            {"Volume of root welding": number_plates_shell * diameter_shell * math.pi * thickness_root_welding**2, "Manipulated volume": volume_shell},
+            {"Volume of root welding": length_shell * thickness_root_welding**2, "Manipulated volume": volume_shell},
+            {"Volume of root welding": 2 * length_heads * thickness_root_welding**2, "Manipulated volume": volume_heads}
+             ]
+        table_6.append(a)
 
-if DimHE[0]>609.6:
-    shell_circumferencial=(RMs.RawMaterialShell()[1]-1)*DimHE[0]*np.pi*(max(DimHE[2]-tw,0)**2), VolHE[0]
-    shell_longitudinal=DimHE[1]*(max(DimHE[2]-tw,0)**2), VolHE[0]
-    head_length=2*DesHE[15]*(max(DesHE[16]-tw,0)**2), VolHE[4]
-    Dim_RootWeld.append(shell_circumferencial)
-    Dim_RootWeld.append(shell_longitudinal)
-    Dim_RootWeld.append(head_length)
 
-LCph=25
-MCph=25
-UCph=25
-DCph=25
+    if length_tubes>508:   #lenght of tubes is bigger the 20'
+        b = [
+                {"Volume of root welding": number_passes * number_tubes_pass * math.pi * (tubes_outside_diameter - 2 * thickness_tubes) * thickness_root_welding**2, "Manipulated volume": volume_tubes}
+                ]
+        table_6.append(b)
 
-STh=1
+    for components in table_6:
+        labor_cost = labor_cost_root_welding * (
+                ((components["Volume of root welding"] * density_root_welding_material
+                  / (deposition_efficiency * operation_factor_root_pass_welding * average_deposition_rate))
+            + starting_time_root_welding
+            + manipulation_time_root_welding*components["Manipulated volume"]
+            )
+        material_cost = material_cost_root_welding * (
+            ((components["Volume of root welding"]* density_root_welding_material
+                  / (deposition_efficiency * operation_factor_root_pass_welding * average_deposition_rate)) 
+            )
+        utility_cost = utility_cost_root_welding * (
+            ((components["Volume of root welding"]* density_root_welding_material
+                  / (deposition_efficiency * operation_factor_root_pass_welding * average_deposition_rate)) 
+            + manipulation_time_root_welding*components["Manipulated volume"]
+            )
+        depreciation_cost = depreciation_cost_root_welding * (
+            ((components["Volume of root welding"]* density_root_welding_material
+                  / (deposition_efficiency * operation_factor_root_pass_welding * average_deposition_rate)) 
+            + manipulation_time_root_welding*components["Manipulated volume"]
+            )
+    total_manufacturing_cost_root_welding = labor_cost+material_cost+utility_cost+depreciation_cost
+    return total_manufacturing_cost_root_welding
 
-def CostRootPassWelding():
-    Cost_of_RootWeld=0
-    i=0
-    while i<len(Dim_RootWeld):
-        Labor_cost_RootWeld=LCph*(Ro/(n*k*r))*Dim_RootWeld[i][0]+STh*Dim_RootWeld[i][1]
-        Material_cost_RootWeld=MCph*(Ro/(n*k*r))*Dim_RootWeld[i][0]
-        Utility_cost_RootWeld=UCph*(Ro/(n*k*r))*Dim_RootWeld[i][0]
-        Mach_Depreciation_cost_RootWeld=DCph*(Ro/(n*k*r))*Dim_RootWeld[i][0]+STh*Dim_RootWeld[i][1]
-        Cost_of_RootWeld=Cost_of_RootWeld+Labor_cost_RootWeld+Material_cost_RootWeld+Utility_cost_RootWeld+Mach_Depreciation_cost_RootWeld
-        i+=1
-    return Cost_of_RootWeld
 
+#continue calculator the total cost of root welding the las for loop
