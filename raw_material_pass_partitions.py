@@ -18,4 +18,6 @@ def scrap_material_pass_partitions(tpp, wpp, lpp, density_steel, number_passes, 
         if plates["Thickness"]<tpp:
             continue
         else:
-            scrap_material_pass partitions = density_steel * plates["Thickness"] * (plates["Width"] * plates["Length"] - (number_passes -1) * wpp * lpp)
+            scrap_material_pass_partitions = density_steel * plates["Thickness"] * (plates["Width"] * plates["Length"] - (number_passes -1) * wpp * lpp)
+
+    return scrap_material_pass_partitions

@@ -1,6 +1,23 @@
 import flet as ft
 import geometry_calculation
 import volumes
+import manufacturing_cost_plasma_cutting
+import manufacturing_cost_drilling
+import manufacturing_cost_lathe
+import manufacturing_cost_root_pass_welding
+import manufacturing_cost_welding
+import manufacturing_cost_blade_saw_cutting
+import raw_material_shell
+import raw_material_flanges
+import raw_material_tubes
+import raw_material_tubesheets
+import raw_material_nozzles
+import raw_material_pass_partitions
+import raw_material_tie_rods
+import raw_material_removable_covers
+import raw_material_nozzles_flanges
+import raw_material_baffles
+import raw_material_heads
 
 #correr 150 ejemplos con la nueva version (test de consistencia) y a la nueva version se testea varias veces la novedad.
 #al arreglar un bug. hay que identificar los ejemplos en los que el error ocurre. corriendo el nuevo 
@@ -203,6 +220,8 @@ def main(page: ft.Page):
 
         number_tie_rods, diameter_tie_rods, length_tie_rods = geometry_calculation.calculate_tie_rods(ds, table_r471)
 
+
+
     def calculate_volumes():
         volume_shell = volumes.volume_shell(diameter_shell, length_shell, thickness_shell, diameter_nozzles)
 
@@ -223,6 +242,11 @@ def main(page: ft.Page):
         volume_pass_partitions = volumes.volume_pass_partitions(number_passes, diameter_shell, thickness_pass_partitions, heads_length)
 
         volume_tie_rods = volumes.volume_tie_rods(number_tie_rods, diameter_tie_rods, length_tie_rods)
+
+
+    def calculate_raw_material():
+        raw_material_shell = raw_material_shell.raw_material_shell(diameter_shell, schedule40_table, length_shell, thickness_shell)
+
 
 
 
