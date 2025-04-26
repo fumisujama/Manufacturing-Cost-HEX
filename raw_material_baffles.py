@@ -3,7 +3,10 @@
 import math
 
 
-def raw_material_baffles(tb, Nb, ec, Bc, Db, plates_table):
+def cost_raw_material_baffles(tb, Nb, ec, Bc, Db, plates_table):
+    Nb=float(Nb.value)
+    Bc=float(Bc.value)
+    ec=float(ec.value)
     for plates in plates_table:
         if plates["Thickness"]<=tb:
             continue
@@ -12,12 +15,15 @@ def raw_material_baffles(tb, Nb, ec, Bc, Db, plates_table):
                     (Nb/2) * (Db + ec/2)
                     / (plates["Length"])
                     )
-
-    return number_plates_baffles
+            cost_raw_material_baffles = number_plates_baffles * plates["Price"]
+            return cost_raw_material_baffles, number_plates_baffles
            
 
 
-def scrap_material_baffles(density_steel, Db, Bc, Nb, tb, number_plates_baffles, plates_table):
+def scrap_material_baffles(Db, Bc, Nb, tb, number_plates_baffles, plates_table):
+    density_steel=7850
+    Nb=float(Nb.value)
+    Bc=float(Bc.value)
     for plates in plates_table:
         if plates["Thickness"]<=tb:
             continue
@@ -32,6 +38,6 @@ def scrap_material_baffles(density_steel, Db, Bc, Nb, tb, number_plates_baffles,
                     )
                 )
                                                                             )
-    return scrap_material_baffles
+            return scrap_material_baffles
 
 
