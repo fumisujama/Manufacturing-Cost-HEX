@@ -1,6 +1,7 @@
 import flet as ft
 import matplotlib.pyplot as plt
 import numpy as np
+from openpyxl import Workbook
 
 import matplotlib as mpl
 import time
@@ -1397,7 +1398,7 @@ def main(page: ft.Page):
             sensitivities=[]
             sensitivities2=[]
             for parameter in parameters:
-                sensitivity_amount = 0.25
+                sensitivity_amount = 0.01
                 if parameter.value==0:
                     h=1
                 else:
@@ -1411,14 +1412,23 @@ def main(page: ft.Page):
                 parameter.value += h  #increase the parameter in an amount h
                 total_cost_heat_exchanger_FOB_after = total_cost_heat_exchanger_FOB(ds, ls, dte, lay, ltp, Nb, BC, number_passes, Ntp, max_allowable_stress, Sb, gasket_material_factor,welding_efficiency, corrosion_allowance, shell_side_pressure, tube_side_pressure, shell_side_fluid_velocity, tube_side_fluid_velocity, shell_side_mass_flow, tube_side_mass_flow, shell_side_fluid_density, tube_side_fluid_density, labor_cost_assembly, starting_time_assembly, manipulation_time_assembly, labor_cost_bolted_joints, material_cost_bolted_joints,utility_cost_bolted_joints, depreciation_cost_bolted_joints, STba, k_scrap_factor_shell, k_scrap_factor_tubes, k_scrap_factor_tubesheets, k_scrap_factor_heads, k_scrap_factor_shell_nozzles, k_scrap_factor_tubes_nozzles, k_scrap_factor_baffles, k_scrap_factor_flanges, k_scrap_factor_removable_covers, k_scrap_factor_tie_rods, k_scrap_factor_pass_partitions, k_scrap_factor_nozzles_flanges,labor_cost_plasma_cutting, material_cost_plasma_cutting, utility_cost_plasma_cutting, depreciation_cost_plasma_cutting, starting_time_plasma_cutting, manipulation_time_plasma_cutting, spca, tpcs, operation_factor_plasma_cutting, ec, labor_cost_drilling, material_cost_drilling, utility_cost_drilling, depreciation_cost_drilling, starting_time_drilling, manipulation_time_drilling, Stm, rpm, fnd, STdo, SDh, labor_cost_lathe, material_cost_lathe, utility_cost_lathe, depreciation_cost_lathe, starting_time_lathe, manipulation_time_lathe, operation_factor_lathe, vcl, apl, fnl, labor_cost_root_pass_welding, material_cost_root_pass_welding, utility_cost_root_pass_welding, depreciation_cost_root_pass_welding, starting_time_root_pass_welding, manipulation_time_root_pass_welding, density_filler_material, nrp, operation_factor_root_pass_welding, rrp, thickness_root_pass_welding, labor_cost_welding, material_cost_welding, utility_cost_welding, depreciation_cost_welding, starting_time_welding, manipulation_time_welding, operation_factor_welding, nw, rw, labor_cost_blade_saw_cutting, material_cost_blade_saw_cutting, utility_cost_blade_saw_cutting, depreciation_cost_blade_saw_cutting, starting_time_blade_saw_cutting, manipulation_time_blade_saw_cutting, Crbs, operation_factor_blade_saw_cutting, plates_table, schedule40_table, rods_table)[0]
                 sensitivity = factor_p_over_y * ((total_cost_heat_exchanger_FOB_after-total_cost_heat_exchanger_FOB_before)/h)
+                sensitivity = round(sensitivity,4)
 #up to h, sensitivity is definded
                 parameter.value= original_value_parameter #parameter goes back to original value        
                 sensitivities.append(sensitivity)
 
             heat_map.append(sensitivities)
+            print(f"Heat map is: \n\n\n {heat_map}")
 
 
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Heat Map 1"
+            for row_index, row_data in enumerate(heat_map):
+                for col_index, cell_value in enumerate(row_data):
+                    ws.cell(row=row_index+1, column=col_index+1, value=cell_value)
 
+            wb.save("Heat map 1.xlsx")
 
 
 ################# Parameters calculations ends here, below this, we calculate sensitivity for raw material##############
@@ -1446,6 +1456,7 @@ def main(page: ft.Page):
 
             total_cost_heat_exchanger_FOB_after_plates = total_cost_heat_exchanger_FOB(ds, ls, dte, lay, ltp, Nb, BC, number_passes, Ntp, max_allowable_stress, Sb, gasket_material_factor,welding_efficiency, corrosion_allowance, shell_side_pressure, tube_side_pressure, shell_side_fluid_velocity, tube_side_fluid_velocity, shell_side_mass_flow, tube_side_mass_flow, shell_side_fluid_density, tube_side_fluid_density, labor_cost_assembly, starting_time_assembly, manipulation_time_assembly, labor_cost_bolted_joints, material_cost_bolted_joints,utility_cost_bolted_joints, depreciation_cost_bolted_joints, STba, k_scrap_factor_shell, k_scrap_factor_tubes, k_scrap_factor_tubesheets, k_scrap_factor_heads, k_scrap_factor_shell_nozzles, k_scrap_factor_tubes_nozzles, k_scrap_factor_baffles, k_scrap_factor_flanges, k_scrap_factor_removable_covers, k_scrap_factor_tie_rods, k_scrap_factor_pass_partitions, k_scrap_factor_nozzles_flanges,labor_cost_plasma_cutting, material_cost_plasma_cutting, utility_cost_plasma_cutting, depreciation_cost_plasma_cutting, starting_time_plasma_cutting, manipulation_time_plasma_cutting, spca, tpcs, operation_factor_plasma_cutting, ec, labor_cost_drilling, material_cost_drilling, utility_cost_drilling, depreciation_cost_drilling, starting_time_drilling, manipulation_time_drilling, Stm, rpm, fnd, STdo, SDh, labor_cost_lathe, material_cost_lathe, utility_cost_lathe, depreciation_cost_lathe, starting_time_lathe, manipulation_time_lathe, operation_factor_lathe, vcl, apl, fnl, labor_cost_root_pass_welding, material_cost_root_pass_welding, utility_cost_root_pass_welding, depreciation_cost_root_pass_welding, starting_time_root_pass_welding, manipulation_time_root_pass_welding, density_filler_material, nrp, operation_factor_root_pass_welding, rrp, thickness_root_pass_welding, labor_cost_welding, material_cost_welding, utility_cost_welding, depreciation_cost_welding, starting_time_welding, manipulation_time_welding, operation_factor_welding, nw, rw, labor_cost_blade_saw_cutting, material_cost_blade_saw_cutting, utility_cost_blade_saw_cutting, depreciation_cost_blade_saw_cutting, starting_time_blade_saw_cutting, manipulation_time_blade_saw_cutting, Crbs, operation_factor_blade_saw_cutting, plates_table, schedule40_table, rods_table)[0]
             sensitivity_plates = 4 * ((total_cost_heat_exchanger_FOB_after_plates-total_cost_heat_exchanger_FOB_before_plates)/total_cost_heat_exchanger_FOB_before_plates)
+            sensitivity_plates = round(sensitivity_plates, 4)
                 #up to h, sensitivity is definded
 
             sensitivities2.append(sensitivity_plates)
@@ -1500,6 +1511,7 @@ def main(page: ft.Page):
 
             total_cost_heat_exchanger_FOB_after_tubes = total_cost_heat_exchanger_FOB(ds, ls, dte, lay, ltp, Nb, BC, number_passes, Ntp, max_allowable_stress, Sb, gasket_material_factor,welding_efficiency, corrosion_allowance, shell_side_pressure, tube_side_pressure, shell_side_fluid_velocity, tube_side_fluid_velocity, shell_side_mass_flow, tube_side_mass_flow, shell_side_fluid_density, tube_side_fluid_density, labor_cost_assembly, starting_time_assembly, manipulation_time_assembly, labor_cost_bolted_joints, material_cost_bolted_joints,utility_cost_bolted_joints, depreciation_cost_bolted_joints, STba, k_scrap_factor_shell, k_scrap_factor_tubes, k_scrap_factor_tubesheets, k_scrap_factor_heads, k_scrap_factor_shell_nozzles, k_scrap_factor_tubes_nozzles, k_scrap_factor_baffles, k_scrap_factor_flanges, k_scrap_factor_removable_covers, k_scrap_factor_tie_rods, k_scrap_factor_pass_partitions, k_scrap_factor_nozzles_flanges,labor_cost_plasma_cutting, material_cost_plasma_cutting, utility_cost_plasma_cutting, depreciation_cost_plasma_cutting, starting_time_plasma_cutting, manipulation_time_plasma_cutting, spca, tpcs, operation_factor_plasma_cutting, ec, labor_cost_drilling, material_cost_drilling, utility_cost_drilling, depreciation_cost_drilling, starting_time_drilling, manipulation_time_drilling, Stm, rpm, fnd, STdo, SDh, labor_cost_lathe, material_cost_lathe, utility_cost_lathe, depreciation_cost_lathe, starting_time_lathe, manipulation_time_lathe, operation_factor_lathe, vcl, apl, fnl, labor_cost_root_pass_welding, material_cost_root_pass_welding, utility_cost_root_pass_welding, depreciation_cost_root_pass_welding, starting_time_root_pass_welding, manipulation_time_root_pass_welding, density_filler_material, nrp, operation_factor_root_pass_welding, rrp, thickness_root_pass_welding, labor_cost_welding, material_cost_welding, utility_cost_welding, depreciation_cost_welding, starting_time_welding, manipulation_time_welding, operation_factor_welding, nw, rw, labor_cost_blade_saw_cutting, material_cost_blade_saw_cutting, utility_cost_blade_saw_cutting, depreciation_cost_blade_saw_cutting, starting_time_blade_saw_cutting, manipulation_time_blade_saw_cutting, Crbs, operation_factor_blade_saw_cutting, plates_table, schedule40_table, rods_table)[0]
             sensitivity_tubes = 4 * ((total_cost_heat_exchanger_FOB_after_tubes-total_cost_heat_exchanger_FOB_before_tubes)/(total_cost_heat_exchanger_FOB_before_tubes))
+            sensitivity_tubes = round(sensitivity_tubes, 4)
 #up to h, sensitivity is definded
 
             sensitivities2.append(sensitivity_tubes)
@@ -1552,13 +1564,22 @@ def main(page: ft.Page):
 
             total_cost_heat_exchanger_FOB_after_rods = total_cost_heat_exchanger_FOB(ds, ls, dte, lay, ltp, Nb, BC, number_passes, Ntp, max_allowable_stress, Sb, gasket_material_factor,welding_efficiency, corrosion_allowance, shell_side_pressure, tube_side_pressure, shell_side_fluid_velocity, tube_side_fluid_velocity, shell_side_mass_flow, tube_side_mass_flow, shell_side_fluid_density, tube_side_fluid_density, labor_cost_assembly, starting_time_assembly, manipulation_time_assembly, labor_cost_bolted_joints, material_cost_bolted_joints,utility_cost_bolted_joints, depreciation_cost_bolted_joints, STba, k_scrap_factor_shell, k_scrap_factor_tubes, k_scrap_factor_tubesheets, k_scrap_factor_heads, k_scrap_factor_shell_nozzles, k_scrap_factor_tubes_nozzles, k_scrap_factor_baffles, k_scrap_factor_flanges, k_scrap_factor_removable_covers, k_scrap_factor_tie_rods, k_scrap_factor_pass_partitions, k_scrap_factor_nozzles_flanges,labor_cost_plasma_cutting, material_cost_plasma_cutting, utility_cost_plasma_cutting, depreciation_cost_plasma_cutting, starting_time_plasma_cutting, manipulation_time_plasma_cutting, spca, tpcs, operation_factor_plasma_cutting, ec, labor_cost_drilling, material_cost_drilling, utility_cost_drilling, depreciation_cost_drilling, starting_time_drilling, manipulation_time_drilling, Stm, rpm, fnd, STdo, SDh, labor_cost_lathe, material_cost_lathe, utility_cost_lathe, depreciation_cost_lathe, starting_time_lathe, manipulation_time_lathe, operation_factor_lathe, vcl, apl, fnl, labor_cost_root_pass_welding, material_cost_root_pass_welding, utility_cost_root_pass_welding, depreciation_cost_root_pass_welding, starting_time_root_pass_welding, manipulation_time_root_pass_welding, density_filler_material, nrp, operation_factor_root_pass_welding, rrp, thickness_root_pass_welding, labor_cost_welding, material_cost_welding, utility_cost_welding, depreciation_cost_welding, starting_time_welding, manipulation_time_welding, operation_factor_welding, nw, rw, labor_cost_blade_saw_cutting, material_cost_blade_saw_cutting, utility_cost_blade_saw_cutting, depreciation_cost_blade_saw_cutting, starting_time_blade_saw_cutting, manipulation_time_blade_saw_cutting, Crbs, operation_factor_blade_saw_cutting, plates_table, schedule40_table, rods_table)[0]
             sensitivity_rods = 4 * ((total_cost_heat_exchanger_FOB_after_rods-total_cost_heat_exchanger_FOB_before_rods)/(total_cost_heat_exchanger_FOB_before_rods))
+            sensitivity_rods = round(sensitivity_rods, 4)
 #up to h, sensitivity is definded
 
             sensitivities2.append(sensitivity_rods)
             print(sensitivities2)
             heat_map2.append(sensitivities2)
 
-        print(f"Heat Map 2 is:  {heat_map2}")
+        print(f"Heat Map 2 is: \n\n\n {heat_map2}")
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Heat Map 2"
+        for row_index, row_data in enumerate(heat_map2):
+            for col_index, cell_value in enumerate(row_data):
+                ws.cell(row=row_index+1, column=col_index+1, value=cell_value)
+
+        wb.save("Heat map 2.xlsx")
 
 
 
@@ -1571,10 +1592,10 @@ def main(page: ft.Page):
         ax.set_xticks(range(len(increased_parameters)), labels=increased_parameters,
                       rotation=-45, ha="right", rotation_mode="anchor", fontsize=9)
         ax.set_yticks(range(len(name_examples)), labels=name_examples)
-        #for j in range(len(increased_parameters)):
-        #    for i in range(len(name_examples)):
-        #        text = ax.text(j,i, heat_map_matrix[i, j],
-        #                       ha="center", va="center", color="w")
+        for j in range(len(increased_parameters)):
+            for i in range(len(name_examples)):
+                text = ax.text(j,i, heat_map_matrix[i, j],
+                               ha="center", va="center", color="black")
 
         ax.set_title("Sensitivity of parameters for all exchangers, h=0.25")
         fig.tight_layout()
@@ -1588,10 +1609,10 @@ def main(page: ft.Page):
         ax.set_xticks(range(len(raw_material_parameters)), labels=raw_material_parameters,
                       rotation=-45, ha="right", rotation_mode="anchor", fontsize=9)
         ax.set_yticks(range(len(name_examples)), labels=name_examples)
-        #for j in range(len(increased_parameters)):
-        #    for i in range(len(name_examples)):
-        #        text = ax.text(j,i, heat_map_matrix[i, j],
-        #                       ha="center", va="center", color="w")
+        for j in range(len(raw_material_parameters)):
+            for i in range(len(name_examples)):
+                text = ax.text(j,i, heat_map_matrix2[i, j],
+                               ha="center", va="center", color="black")
 
         ax.set_title("Sensitivity of raw materials for all exchangers, h=0.25")
         fig.tight_layout()
